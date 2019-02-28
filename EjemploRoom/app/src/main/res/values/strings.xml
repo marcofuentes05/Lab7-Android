@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Ejemplo Room</string>
+    <string name="title_activity_add_edit_note">AddEditNoteActivity</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="priority">Priority:</string>
+</resources>
