@@ -14,8 +14,8 @@ interface ContactoDAO {
     @Update
     fun actualizarContacto(c: Contacto)
 
-    @Delete
-    fun eliminarContactos(vararg contactos: Contacto)
+    @Query ("DELETE FROM tabla_contactos")
+    fun eliminarTodosContactos()
 
     @Delete
     fun eliminarContacto(contacto: Contacto)

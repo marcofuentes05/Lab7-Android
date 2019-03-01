@@ -22,15 +22,51 @@ class Repositorio(application: Application) {
         val insertCAsyncTask = InsertCAsyncTask(contactoDAO).execute(c)
     }
 
+    fun update(c: Contacto){
+        val updateCAsyncTask = UpdateCAsyncTask(contactoDAO).execute(c)
+    }
 
+    fun deleteAll(){
+        val deleteAllCAsyncTask = DeleteAllCAsyncTask(contactoDAO).execute()
+    }
 
+    fun delete(c: Contacto){
+        val deleteCAsyncTask = DeleteCAsyncTask(contactoDAO).execute(c)
+    }
+
+    fun getAllC() : LiveData<List<Contacto>>{
+            return todosContactos
+    }
 
     companion object {
-        private class InsertCAsyncTask(noteDao: ContactoDAO) : AsyncTask<Contacto, Unit, Unit>() {
-            val noteDao = noteDao
+        private class InsertCAsyncTask(cDAO: ContactoDAO) : AsyncTask<Contacto, Unit, Unit>() {
+            val contactoDAO = cDAO
 
             override fun doInBackground(vararg p0: Contacto?) {
-                noteDao.insertarContacto(p0[0]!!)
+                contactoDAO.insertarContacto(p0[0]!!)
+            }
+        }
+
+        private class UpdateCAsyncTask(cDAO: ContactoDAO) : AsyncTask<Contacto, Unit, Unit>() {
+            val contactoDAO = cDAO
+
+            override fun doInBackground(vararg p0: Contacto?) {
+                contactoDAO.actualizarContacto(p0[0]!!)
+            }
+        }
+
+        private class DeleteAllCAsyncTask(cDAO: ContactoDAO) : AsyncTask<Contacto, Unit, Unit>() {
+            val contactoDAO = cDAO
+            override fun doInBackground(vararg p0: Contacto?) {
+                contactoDAO.eliminarTodosContactos()
+            }
+        }
+
+        private class DeleteCAsyncTask(cDAO: ContactoDAO) : AsyncTask<Contacto, Unit, Unit>() {
+            val contactoDAO = cDAO
+
+            override fun doInBackground(vararg p0: Contacto?) {
+                contactoDAO.eliminarContacto(p0[0]!!)
             }
         }
     }
