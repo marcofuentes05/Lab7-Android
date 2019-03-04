@@ -1,7 +1,7 @@
 package com.example.laboratorio7
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.AndroidViewModel
 
 class ContactoViewModel(application : Application) : AndroidViewModel (application) {

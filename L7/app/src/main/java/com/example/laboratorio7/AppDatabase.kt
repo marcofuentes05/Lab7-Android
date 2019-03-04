@@ -7,7 +7,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = arrayOf(Contacto::class), version = 1)
+@Database(entities = [Contacto::class], version = 1)
 abstract class AppDatabase : RoomDatabase(){
     abstract fun contactoDAO(): ContactoDAO
 
@@ -47,7 +47,7 @@ abstract class AppDatabase : RoomDatabase(){
         private val contactoDao = db?.contactoDAO()
 
         override fun doInBackground(vararg p0: Unit?) {
-            contactoDao?.insertarContacto(Contacto("Juanito", 12345678, "juanito@gmail.com",1,"Salu2"))
+            contactoDao?.insertarContacto(Contacto("Juanito", "12345678", "juanito@gmail.com",1, ""))
         }
     }
 }

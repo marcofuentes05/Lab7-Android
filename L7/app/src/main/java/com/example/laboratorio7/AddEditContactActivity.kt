@@ -2,81 +2,107 @@ package com.example.laboratorio7
 
 import android.app.Activity
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
-import com.example.laboratorio7.AddEditContactActivity.Companion.EXTRA_ID
 import kotlinx.android.synthetic.main.activity_add_edit_contact.*
 
+import android.net.Uri
+import android.provider.MediaStore
+import android.widget.ImageView
 
 class AddEditContactActivity : AppCompatActivity() {
 
-    companion object {
+    lateinit var imagen : ImageView
+    lateinit var boton : Button
+    var path : Uri = Uri.parse("")
+    /**companion object {
         const val EXTRA_ID = "com.example.laboratorio7.EXTRA_ID"
         const val EXTRA_NAME = "com.example.laboratorio7.EXTRA_NAME"
         const val EXTRA_EMAIL = "com.example.laboratorio7.EXTRA_EMAIL"
         const val EXTRA_NUMERO = "com.example.laboratorio7.EXTRA_NUMERO"
         const val EXTRA_PRIORITY = "com.example.laboratorio7.EXTRA_PRIORITY"
         const val EXTRA_FOTO = "com.example.laboratorio7.EXTRA_FOTO"
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_edit_contact)
-
-        number_picker_priority.minValue = 1
-        number_picker_priority.maxValue = 10
-
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_close)
-
-        if (intent.hasExtra(EXTRA_ID)) {
-            title = "Editar Contacto"
-            nombre.setText(intent.getStringExtra(EXTRA_NAME))
-            email.setText(intent.getStringExtra(EXTRA_EMAIL))
-            telefono.setText(intent.getIntExtra(EXTRA_NUMERO, 1))
-        } else {
-            title = "Agregar Contacto"
-        }
-    }
+    }**/
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_note_menu, menu)
         return true
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_add_edit_contact)
+
+        prioridad.minValue = 1
+        prioridad.maxValue = 10
+        boton = findViewById(R.id.agregarFoto)
+        imagen = findViewById(R.id.foto)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_close)
+
+        title = "Editar Contacto"
+
+        nombre.setText(intent.getStringExtra(MainActivity.EXTRA_NAME))
+        telefono.setText(intent.getStringExtra(MainActivity.EXTRA_NUMERO))
+        email.setText(intent.getStringExtra(MainActivity.EXTRA_EMAIL))
+        prioridad.value = intent.getIntExtra(MainActivity.EXTRA_PRIORITY, 1)
+
+    }
+
+    //Metodos para cargar la imagen
+    fun onClick(view: View){
+        cargarImagen()
+    }
+
+    private fun cargarImagen() {
+        var intent : Intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/"
+        startActivityForResult(Intent.createChooser(intent, "Seleccione su foto"),10)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK){
+            if (data != null) {
+                path  = data.data
+                foto.setImageURI(path)
+            }
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.save_contact -> {
-                saveC()
+                updateC()
                 true
             }
-
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun saveC(){
-        fun saveNote() {
+    private fun updateC(){
             if (nombre.text.toString().trim().isBlank() || email.text.toString().trim().isBlank()) {
                 Toast.makeText(this, "No puedes dejar campos en blanco", Toast.LENGTH_SHORT).show()
                 return
             }
             val data = Intent().apply {
-                putExtra(EXTRA_NAME, nombre.text.toString())
-                putExtra(EXTRA_EMAIL, email.text.toString())
-                putExtra(EXTRA_NUMERO, telefono.toString())
+                putExtra(MainActivity.EXTRA_NAME, nombre.text.toString())
+                putExtra(MainActivity.EXTRA_NUMERO, telefono.text)
+                putExtra(MainActivity.EXTRA_EMAIL, email.text.toString())
+                putExtra(MainActivity.EXTRA_PRIORITY, prioridad.value)
 
-                if (intent.getIntExtra(EXTRA_ID, -1) != -1) {
-                    putExtra(EXTRA_ID, intent.getIntExtra(EXTRA_ID, -1))
+                putExtra(MainActivity.EXTRA_FOTO, path.toString())
+
+                if (intent.getIntExtra(MainActivity.EXTRA_ID, -1) != -1) {
+                    putExtra(MainActivity.EXTRA_ID, intent.getIntExtra(MainActivity.EXTRA_ID, -1))
                 }
             }
 
             setResult(Activity.RESULT_OK, data)
             finish()
-        }
-
     }
 }

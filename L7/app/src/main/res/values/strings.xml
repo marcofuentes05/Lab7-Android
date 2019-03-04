@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Laboratorio 7</string>
+    <string name="cambiar_foto">Cambiar Foto</string>
+    <string name="nombre">Nombre</string>
+    <string name="correo_electronico">Correo Electronico</string>
+    <string name="numero_telefonico">Numero Telefonico</string>
+    <string name="priority">Priority:</string>
+    <string name="todo">TODO</string>
 </resources>

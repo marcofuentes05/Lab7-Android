@@ -1,9 +1,8 @@
 package com.example.laboratorio7
 
 import android.app.Application
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import android.os.AsyncTask
-import androidx.room.Room
 
 class Repositorio(application: Application) {
     private var contactoDAO : ContactoDAO

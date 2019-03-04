@@ -3,25 +3,36 @@ package com.example.laboratorio7
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
-
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import android.arch.lifecycle.Observer
+
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
+
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(){
+
+    private lateinit var recycler_view: RecyclerView
+
     companion object {
-        const val ADD_NOTE_REQUEST = 1
-        const val EDIT_NOTE_REQUEST = 2
+        const val EXTRA_ID = "com.example.laboratorio7.EXTRA_ID"
+        const val EXTRA_NAME = "com.example.laboratorio7.EXTRA_NAME"
+        const val EXTRA_EMAIL = "com.example.laboratorio7.EXTRA_EMAIL"
+        const val EXTRA_NUMERO = "com.example.laboratorio7.EXTRA_NUMERO"
+        const val EXTRA_PRIORITY = "com.example.laboratorio7.EXTRA_PRIORITY"
+        const val EXTRA_FOTO = "com.example.laboratorio7.EXTRA_FOTO"
+
+        const val ADD_CONTACT_REQUEST = 1
+        const val EDIT_CONTACT_REQUEST = 2
     }
 
-    private lateinit var noteViewModel: ContactoViewModel
+    private lateinit var contactViewModel: ContactoViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +40,11 @@ class MainActivity : AppCompatActivity() {
 
         agregarContacto.setOnClickListener {
             startActivityForResult(
-                Intent(this, AddEditContactActivity::class.java),
-                ADD_NOTE_REQUEST
+                Intent(this, AgregarContacto::class.java),
+                ADD_CONTACT_REQUEST
             )
         }
-
+        recycler_view = findViewById<RecyclerView>(R.id.recycler_view)
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.setHasFixedSize(true)
 
@@ -41,11 +52,10 @@ class MainActivity : AppCompatActivity() {
 
         recycler_view.adapter = adapter
 
-        noteViewModel = ViewModelProviders.of(this).get(ContactoViewModel::class.java)
+        contactViewModel = ViewModelProviders.of(this).get(ContactoViewModel::class.java)
 
-        noteViewModel.getAllC().observe(this, Observer<List<Contacto>> {
-            adapter.submitList(it)
-        })
+
+        contactViewModel.getAllC().observe(this, Observer <List<Contacto>> {adapter.submitList(it)})
 
         ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
             override fun onMove(
@@ -57,23 +67,23 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                noteViewModel.delete(adapter.getContactoAt(viewHolder.adapterPosition))
-                Toast.makeText(baseContext, "Note Deleted!", Toast.LENGTH_SHORT).show()
+                contactViewModel.delete(adapter.getContactoAt(viewHolder.adapterPosition))
+                Toast.makeText(baseContext, "Contacdo eliminado!", Toast.LENGTH_SHORT).show()
             }
         }
         ).attachToRecyclerView(recycler_view)
 
         adapter.setOnItemClickListener(object : ContactoAdapter.OnItemClickListener {
             override fun onItemClick(c: Contacto) {
-                var intent = Intent(baseContext, AddEditContactActivity::class.java)
-                intent.putExtra(AddEditContactActivity.EXTRA_ID, c.id)
-                intent.putExtra(AddEditContactActivity.EXTRA_NAME, c.nombre)
-                intent.putExtra(AddEditContactActivity.EXTRA_NUMERO, c.telefono)
-                intent.putExtra(AddEditContactActivity.EXTRA_PRIORITY, c.prioridad)
-                intent.putExtra(AddEditContactActivity.EXTRA_EMAIL, c.email)
-                intent.putExtra(AddEditContactActivity.EXTRA_FOTO, c.foto)
+                var intent = Intent(baseContext, VerContacto::class.java)
+                intent.putExtra(EXTRA_ID, c.id)
+                intent.putExtra(EXTRA_NAME, c.nombre)
+                intent.putExtra(EXTRA_NUMERO, c.telefono)
+                intent.putExtra(EXTRA_PRIORITY, c.prioridad)
+                intent.putExtra(EXTRA_EMAIL, c.email)
+                intent.putExtra(EXTRA_FOTO, c.foto)
 
-                startActivityForResult(intent, EDIT_NOTE_REQUEST)
+                startActivityForResult(intent, EDIT_CONTACT_REQUEST)
             }
         })
     }
@@ -86,7 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.delete_all_contacts -> {
-                noteViewModel.deleteAll()
+                contactViewModel.deleteAll()
                 Toast.makeText(this, "Todos los contactos han sido eliminados", Toast.LENGTH_SHORT).show()
                 true
             }
@@ -99,33 +109,34 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == ADD_NOTE_REQUEST && resultCode == Activity.RESULT_OK) {
-            val newNote = Contacto(
-                data!!.getStringExtra(AddEditContactActivity.EXTRA_NAME),
-                data.getIntExtra(AddEditContactActivity.EXTRA_NUMERO, 1),
-                data.getStringExtra(AddEditContactActivity.EXTRA_EMAIL),
-                data.getIntExtra(AddEditContactActivity.EXTRA_PRIORITY, 1),
-                data.getStringExtra(AddEditContactActivity.EXTRA_FOTO)
+        if (requestCode == ADD_CONTACT_REQUEST && resultCode == Activity.RESULT_OK) {
+            val newC = Contacto(
+                data!!.getStringExtra(EXTRA_NAME),
+                data.getStringExtra(EXTRA_NUMERO),
+                data.getStringExtra(EXTRA_EMAIL),
+                data.getIntExtra(EXTRA_PRIORITY, 1),
+                data.getStringExtra(EXTRA_FOTO)
             )
-            noteViewModel.insert(newNote)
+            contactViewModel.insert(newC)
 
-            Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show()
-        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == Activity.RESULT_OK) {
-            val id = data?.getIntExtra(AddEditContactActivity.EXTRA_ID, -1)
+            Toast.makeText(this, "Tu contacto se ha guardado :D", Toast.LENGTH_SHORT).show()
+        } else if (requestCode == EDIT_CONTACT_REQUEST && resultCode == Activity.RESULT_OK) {
+            val id = data?.getIntExtra(EXTRA_ID, -1)
 
             if (id == -1) {
-                Toast.makeText(this, "Could not update! Error!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Hubo un error!", Toast.LENGTH_SHORT).show()
             }
 
             val updateNote = Contacto(
-                data!!.getStringExtra(AddEditContactActivity.EXTRA_NAME),
-                data.getIntExtra(AddEditContactActivity.EXTRA_NUMERO, 1),
-                data.getStringExtra(AddEditContactActivity.EXTRA_EMAIL),
-                data.getIntExtra(AddEditContactActivity.EXTRA_PRIORITY, 1),
-                data.getStringExtra(AddEditContactActivity.EXTRA_FOTO)
+                data!!.getStringExtra(EXTRA_NAME),
+                data.getStringExtra(EXTRA_NUMERO),
+                data.getStringExtra(EXTRA_EMAIL),
+                data.getIntExtra(EXTRA_PRIORITY, 1),
+                data.getStringExtra(EXTRA_FOTO)
             )
-            updateNote.id = data.getIntExtra(AddEditContactActivity.EXTRA_ID, -1)
-            noteViewModel.update(updateNote)
+            updateNote.id = data.getIntExtra(EXTRA_ID, -1)
+
+            contactViewModel.update(updateNote)
 
         } else {
             Toast.makeText(this, "No se guardo el contacto!", Toast.LENGTH_SHORT).show()

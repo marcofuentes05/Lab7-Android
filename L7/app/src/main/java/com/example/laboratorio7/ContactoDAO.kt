@@ -1,6 +1,6 @@
 package com.example.laboratorio7
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
